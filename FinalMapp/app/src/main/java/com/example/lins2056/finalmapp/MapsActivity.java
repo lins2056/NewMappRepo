@@ -1,7 +1,14 @@
 package com.example.lins2056.finalmapp;
 
+import android.*;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,8 +48,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Born here"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng indiana = new LatLng(40, -86);
+        mMap.addMarker(new MarkerOptions().position(indiana).title("Born here"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(indiana));
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Log.d("MyMapsApp","Failed permission 1");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Log.d("MyMapsApp","Failed permission 2");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+        }
+
+        mMap.setMyLocationEnabled(true);
+
     }
+
+    public void changeView (View v){
+
+        if(mMap.getMapType() == 1)
+        {
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+        else if(mMap.getMapType()== 2)
+        {
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+    }
+
 }
