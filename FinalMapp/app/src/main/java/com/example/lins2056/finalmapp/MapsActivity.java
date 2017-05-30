@@ -4,11 +4,13 @@ import android.*;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,7 +23,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-
+    private LocationManager locationManager;
+    private boolean isGPSEnabled = false;
+    private boolean isNetworkEnabled = false;
+    private boolean canGetLocation = false;
+    private static final long MIN_TIME_BTWN_UPDATES = 1000*15*1;
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +71,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMyLocationEnabled(true);
 
+
     }
+/*
+    public void getLocation(){
+        try{
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+            //getGPSstatus
+            isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if(isGPSEnabled) Log.d("MyMapsApp", "getLocation: GPS is enabled");
+
+            //getnetworkstatus
+            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if(isNetworkEnabled) Log.d("MyMapsApp", "getLocation: NETWORK is enabled");
+
+            if(!isGPSEnabled && !isNetworkEnabled){
+                Log.d("MyMapsApp", "getLocation: No provider is enabled!");
+            } else{
+
+                this.canGetLocation = true;
+                if(isNetworkEnabled){
+                    Log.d("MyMapsApp", " getLocation; Network enabled-requesting location updates");
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                            MIN_TIME_BTWN_UPDATES,
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                            locationListenerNetwork);
+                    Log.d("MyMapsApp", "getLocation: NetworkLoc update request successful");
+                    Toast.makeText(this, "Using Network", Toast.LENGTH_SHORT);
+
+                }
+
+                if(isGPSEnabled){
+                    Log.d("MyMapsApp", " getLocation; gps enabled-requesting location updates");
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                            MIN_TIME_BTWN_UPDATES,
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                            locationListenerGPS);
+                    Log.d("MyMapsApp", "getLocation: GPSLoc update request successful");
+                    Toast.makeText(this, "Using gps", Toast.LENGTH_SHORT);
+
+                }
+            }
+
+        } catch(Exception e){
+            Log.d("MyMapsApp", "Caught exception in getLocation");
+            e.printStackTrace();
+        }
+    }
+    */
 
     public void changeView (View v){
 
