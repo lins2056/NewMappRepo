@@ -13,7 +13,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -90,10 +92,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void cleanthismess(View v){
         mMap.clear();
-        LatLng indiana = new LatLng(40, -86);
-        mMap.addMarker(new MarkerOptions().position(indiana).title("Born here"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(indiana));
     }
+
     /*public void track(View v) {
         int taps = 0;
         if (taps % 2 == 1) {
@@ -114,6 +114,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         taps++;
     }*/
+
+    /*ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+    toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener());
+
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+            if(isChecked){
+                getLocation();
+            }
+            else{
+
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d("MyMapsApp", "Failed permission 1");
+                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                }
+
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d("MyMapsApp", "Failed permission 2");
+                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+                }
+                locationManager.removeUpdates(locationListenerNetwork);
+                locationManager.removeUpdates(locationListenerGPS);
+            }
+        }*/
+
 
     public void getLocation() {
         try {
@@ -182,7 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(getApplicationContext(), "GPS is enabled and working.", Toast.LENGTH_SHORT);
 
             //drop a marker on map - create a method called dropMarker
-            dropMarker(LocationManager.GPS_PROVIDER, -16776961);//blue
+            dropMarker(LocationManager.GPS_PROVIDER, -1);//white
             //remove network location updates. Hint see locationmanager for update removal method.
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
