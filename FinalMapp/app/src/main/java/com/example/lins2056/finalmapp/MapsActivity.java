@@ -206,14 +206,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(getApplicationContext(), "GPS is enabled and working.", Toast.LENGTH_SHORT);
 
             //drop a marker on map - create a method called dropMarker
-            dropMarker(LocationManager.GPS_PROVIDER, -1);//white
+            dropMarker(LocationManager.GPS_PROVIDER, -16711681);//cyan
             //remove network location updates. Hint see locationmanager for update removal method.
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
                 return;
             }
+
             locationManager.removeUpdates(locationListenerNetwork);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    MIN_TIME_BTWN_UPDATES,
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                    locationListenerGPS);
 
 
         }
