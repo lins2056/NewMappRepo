@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -14,10 +15,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,8 +32,10 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -45,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location location;
     private Location myLocation;
     private LatLng userLocation;
+    private String address;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +59,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    getLocation();
+                }
+                else{
+
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Log.d("MyMapsApp", "Failed permission 1");
+                      }
+
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Log.d("MyMapsApp", "Failed permission 2");
+                    }
+                    locationManager.removeUpdates(locationListenerNetwork);
+                    locationManager.removeUpdates(locationListenerGPS);
+                }
+            }
+        });
         //GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(this).build();
     }
 
@@ -86,7 +114,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         //mMap.setMyLocationEnabled(true);
-        getLocation();
+        //getLocation();
 
     }
 
@@ -115,32 +143,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         taps++;
     }*/
 
-    /*ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
-    toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener());
 
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-            if(isChecked){
-                getLocation();
-            }
-            else{
-
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MyMapsApp", "Failed permission 1");
-                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                }
-
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MyMapsApp", "Failed permission 2");
-                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
-                }
-                locationManager.removeUpdates(locationListenerNetwork);
-                locationManager.removeUpdates(locationListenerGPS);
-            }
-        }*/
 
 
     public void getLocation() {
         try {
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d("MyMapsApp", "Failed permission 1");
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d("MyMapsApp", "Failed permission 2");
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+            }
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             //getGPSstatus
@@ -412,4 +429,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    public void searchAddress(View v){
+
+        address = ((EditText)findViewById(R.id.editText_search)).getText().toString();
+        Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+        try
+        {
+            Double nearlat = myLocation.getLatitude();
+            Double nearlong = myLocation.getLatitude();
+            List<android.location.Address> manyaddresses = geoCoder.getFromLocationName(address, 20,
+                    nearlat - 1, nearlong - 1, nearlat + 1, nearlong + 1); //get 5 miles??
+            if(manyaddresses.size() > 0){
+                for(int i = 0; i < manyaddresses.size(); i++){
+                    Double lat = (double)(manyaddresses.get(i).getLatitude());
+                    Double lon = (double)(manyaddresses.get(i).getLongitude());
+                    LatLng mattch = new LatLng(lat,lon);
+                    mMap.addMarker(new MarkerOptions().position(mattch).title(address));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mattch, MY_LOC_ZOOM_FACTOR));
+                }
+
+            }
+        }
+        catch (IOException e)
+        {
+            Log.d("MyMapsApp", "YOU FAILED :(");
+            e.printStackTrace();
+        }
+    }
+    public void onCheckedChanged(View v) {
+
+    }
 }
