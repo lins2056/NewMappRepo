@@ -432,29 +432,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void searchAddress(View v){
 
         address = ((EditText)findViewById(R.id.editText_search)).getText().toString();
-        Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
-        try
-        {
-            Double nearlat = myLocation.getLatitude();
-            Double nearlong = myLocation.getLatitude();
-            List<android.location.Address> manyaddresses = geoCoder.getFromLocationName(address, 20,
-                    nearlat - 1, nearlong - 1, nearlat + 1, nearlong + 1); //get 5 miles??
-            if(manyaddresses.size() > 0){
-                for(int i = 0; i < manyaddresses.size(); i++){
-                    Double lat = (double)(manyaddresses.get(i).getLatitude());
-                    Double lon = (double)(manyaddresses.get(i).getLongitude());
-                    LatLng mattch = new LatLng(lat,lon);
-                    mMap.addMarker(new MarkerOptions().position(mattch).title(address));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mattch, MY_LOC_ZOOM_FACTOR));
-                }
+        if(address != null && !address.equals("")){
+            mMap.clear();
+            Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+            try
+            {
+                Double nearlat = myLocation.getLatitude();
+                Double nearlong = myLocation.getLongitude();
+                List<android.location.Address> manyaddresses = geoCoder.getFromLocationName(address, 20,
+                        nearlat - 0.04, nearlong - 0.04, nearlat + 0.04, nearlong + 0.04); //get 5 miles??
 
+                //mMap.addMarker(new MarkerOptions().position(new LatLng(nearlat, nearlong)));
+                Log.d("MyMapsApp", "lat, long, address" + nearlat+nearlong+ manyaddresses);
+                if(manyaddresses.size() > 0){
+                    for(int i = 0; i < manyaddresses.size(); i++){
+                        Double lat = (double)(manyaddresses.get(i).getLatitude());
+                        Double lon = (double)(manyaddresses.get(i).getLongitude());
+                        LatLng mattch = new LatLng(lat,lon);
+                        mMap.addMarker(new MarkerOptions().position(mattch).title(address));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mattch, MY_LOC_ZOOM_FACTOR));
+                    }
+
+                }
+            }
+            catch (IOException e)
+            {
+                Log.d("MyMapsApp", "YOU FAILED :(");
+                e.printStackTrace();
             }
         }
-        catch (IOException e)
-        {
-            Log.d("MyMapsApp", "YOU FAILED :(");
-            e.printStackTrace();
-        }
+
     }
     public void onCheckedChanged(View v) {
 
